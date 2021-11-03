@@ -49,7 +49,7 @@ func getTransportLayer(httpClient *http.Client, timeout time.Duration) http.Roun
 	return httpTransport
 }
 
-func UsingClient(httpClient *http.Client) Option {
+func usingClient(httpClient *http.Client) Option {
 	return func(c *Client) {
 		if httpClient == nil {
 			return
@@ -63,14 +63,18 @@ func UsingClient(httpClient *http.Client) Option {
 }
 
 func NewClient(baseUrl string) (*Client, error) {
-	if _, err := url.Parse(baseUrl); err != nil {
+	if baseUrl == "" {
+		return nil, errRequired("baseUrl")
+	}
+
+	if _, err := url.ParseRequestURI(baseUrl); err != nil {
 		return nil, err
 	}
 
 	c := &Client{baseUrl: baseUrl}
 	if c.client == nil {
 		httpClient := &http.Client{}
-		UsingClient(httpClient)(c)
+		usingClient(httpClient)(c)
 	}
 
 	return c, nil
