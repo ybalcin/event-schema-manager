@@ -20,6 +20,19 @@ type (
 		Do(req *http.Request) (*http.Response, error)
 	}
 
+	IClient interface {
+		Subjects() (subjects []string, err error)
+		Versions(subject string) (versions []int, err error)
+		DeleteSubject(subject string) (versions []string, err error)
+		IsRegistered(subject, schema string) (bool, Schema, error)
+		RegisterNewSchema(subject string, avroSchema string) (int, error)
+		GetSchemaById(id int) (string, error)
+		GetSchemaByVersion(subject string, version string) (*Schema, error)
+		GetLatestSchema(subject string) (*Schema, error)
+		IsSchemaCompatible(subject string, avroSchema string, version int) (bool, error)
+		IsLatestSchemaCompatible(subject string, avroSchema string) (bool, error)
+	}
+
 	Client struct {
 		baseUrl string
 		client  httpDoer
@@ -62,7 +75,7 @@ func usingClient(httpClient *http.Client) Option {
 	}
 }
 
-func NewClient(baseUrl string) (*Client, error) {
+func NewClient(baseUrl string) (IClient, error) {
 	if baseUrl == "" {
 		return nil, errRequired("baseUrl")
 	}
