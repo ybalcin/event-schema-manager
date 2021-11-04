@@ -313,7 +313,6 @@ func (c *Client) Subjects() (subjects []string, err error) {
 
 // Versions returns all versions of a subject
 func (c *Client) Versions(subject string) (versions []int, err error) {
-
 	if subject == "" {
 		err = errRequired("subject")
 		return
