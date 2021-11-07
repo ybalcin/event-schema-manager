@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -123,7 +124,20 @@ const (
 	subjectNotFoundCode = 40401
 	schemaNotFoundCode  = 40403
 	versionNotFound     = 40402
+	invalidAvroSchema   = 42201
 )
+
+func IsInvalidAvroSchema(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if resErr, ok := err.(ResourceError); ok {
+		return resErr.ErrorCode == invalidAvroSchema
+	}
+
+	return false
+}
 
 func IsSubjectNotFound(err error) bool {
 	if err == nil {
@@ -290,7 +304,7 @@ const (
 	subjectPath  = subjectsPath + "/%s"
 	versionsPath = subjectPath + "/versions"
 	versionPath  = versionsPath + "/%s"
-	schemaPath   = "schemas/%d"
+	schemaPath   = "schemas/ids/%d"
 )
 
 var errRequired = func(field string) error {
@@ -439,7 +453,7 @@ func (c *Client) RegisterNewSchema(subject string, avroSchema string) (int, erro
 // GetSchemaById gets schema by id
 func (c *Client) GetSchemaById(id int) (string, error) {
 
-	// GET /schemas/{int: id}
+	// GET /schemas/ids/{int: id}
 	path := fmt.Sprintf(schemaPath, id)
 	resp, err := c.do(http.MethodGet, path, "", nil)
 	if err != nil {
@@ -458,6 +472,10 @@ func (c *Client) GetSchemaById(id int) (string, error) {
 func (c *Client) GetSchemaByVersion(subject string, version string) (*Schema, error) {
 	if subject == "" {
 		return nil, errRequired("subject")
+	}
+
+	if version == "" {
+		return nil, errRequired("version")
 	}
 
 	if err := checkSchemaVersionNumber(version); err != nil {
@@ -485,19 +503,29 @@ func (c *Client) GetLatestSchema(subject string) (*Schema, error) {
 }
 
 func checkSchemaVersionNumber(versionNumber interface{}) error {
+	const stringNotValid string = "client: %v string is not a valid value for versionNumber"
+
 	if versionNumber == nil {
 		return errRequired("versionNumber must be string \"latest\" or int")
 	}
 
 	if verStr, ok := versionNumber.(string); ok {
+		if v, err := strconv.Atoi(verStr); err == nil {
+			if v <= 0 || v > 2^31-1 {
+				return fmt.Errorf(stringNotValid, versionNumber)
+			} else {
+				return nil
+			}
+		}
+
 		if verStr != SchemaLatestVersion {
-			return fmt.Errorf("client: %v string is not a valid value for versionNumber", versionNumber)
+			return fmt.Errorf(stringNotValid, versionNumber)
 		}
 	}
 
 	if verInt, ok := versionNumber.(int); ok {
 		if verInt <= 0 || verInt > 2^31-1 {
-			return fmt.Errorf("client: %v string is not a valid value for versionNumber", versionNumber)
+			return fmt.Errorf(stringNotValid, versionNumber)
 		}
 	}
 
@@ -523,7 +551,7 @@ func (c *Client) isSchemaCompatibleAtVersion(subject string, avroSchema string, 
 	}
 
 	// POST /compatibility/subjects/{string: subject}/versions/{string: version}
-	path := fmt.Sprintf("compatibility/"+versionPath, subject, version)
+	path := fmt.Sprintf("compatibility/"+versionPath, subject, fmt.Sprintf("%v", version))
 	resp, err := c.do(http.MethodPost, path, contentTypeSchemaJSON, send)
 	if err != nil {
 		return false, err
