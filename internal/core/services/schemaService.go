@@ -15,3 +15,9 @@ func NewSchemaService(schemaRepository ports.ISchemaRepository) *schemaService {
 		schemaRepository: schemaRepository,
 	}
 }
+
+func (s *schemaService) Add(subject string, schema string) error {
+	_, err := s.schemaRepository.Add(subject, schema)
+	// handle version, do something useful :)
+	return err
+}
