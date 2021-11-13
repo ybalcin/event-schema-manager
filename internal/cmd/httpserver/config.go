@@ -7,12 +7,12 @@ import (
 )
 
 type (
-	appConfig struct {
+	httpServerConfig struct {
 		SchemaRegistryUrl string
 	}
 )
 
-var config appConfig
+var config httpServerConfig
 
 func loadConfig() {
 	var once sync.Once
@@ -27,7 +27,7 @@ func readConfig() {
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	config = appConfig{}
+	config = httpServerConfig{}
 	if err = decoder.Decode(&config); err != nil {
 		panic(err)
 	}

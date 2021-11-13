@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./cmd/httpserver"
+	"./httpserver"
 )
 
 func main() {
-	httpserver.Run()
+	httpserver.Start()
 }
