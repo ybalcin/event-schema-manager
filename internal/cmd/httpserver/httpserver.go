@@ -1,4 +1,4 @@
-package main
+package httpserver
 
 import (
 	"../../../internal/handlers"
@@ -7,7 +7,8 @@ import (
 	"../../core/services"
 )
 
-func main() {
+func init() {
+
 	schemaRegistryClient, err := schemaregistry.NewClient(config.schemaRegistryUrl)
 	if err != nil {
 		panic(err)

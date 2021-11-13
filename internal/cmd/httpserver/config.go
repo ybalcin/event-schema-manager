@@ -1,4 +1,4 @@
-package main
+package httpserver
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type (
 
 var config appConfig
 
-func init() {
+func initConfig() {
 	var once sync.Once
 	once.Do(readConfig)
 }
