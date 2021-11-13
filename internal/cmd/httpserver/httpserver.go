@@ -7,9 +7,10 @@ import (
 	"../../core/services"
 )
 
-func init() {
+func Run() {
+	loadConfig()
 
-	schemaRegistryClient, err := schemaregistry.NewClient(config.schemaRegistryUrl)
+	schemaRegistryClient, err := schemaregistry.NewClient(config.SchemaRegistryUrl)
 	if err != nil {
 		panic(err)
 	}

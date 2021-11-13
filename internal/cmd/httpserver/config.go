@@ -8,13 +8,13 @@ import (
 
 type (
 	appConfig struct {
-		schemaRegistryUrl string
+		SchemaRegistryUrl string
 	}
 )
 
 var config appConfig
 
-func initConfig() {
+func loadConfig() {
 	var once sync.Once
 	once.Do(readConfig)
 }
@@ -22,7 +22,7 @@ func initConfig() {
 func readConfig() {
 	var err error
 	var file *os.File
-	if file, err = os.Open("/config.json"); err != nil {
+	if file, err = os.Open("internal/cmd/httpserver/config.json"); err != nil {
 		panic(err)
 	}
 	defer file.Close()
