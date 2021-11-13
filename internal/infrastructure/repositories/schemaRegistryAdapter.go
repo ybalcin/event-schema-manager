@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"../../pkg/schemaregistry"
+	"../../../pkg/schemaregistry"
 )
 
 type (

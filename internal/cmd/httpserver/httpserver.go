@@ -2,9 +2,10 @@ package httpserver
 
 import (
 	"../../../internal/handlers"
-	"../../../internal/repositories"
 	"../../../pkg/schemaregistry"
-	"../../core/services"
+	"../../core/application/services"
+	"../../infrastructure/repositories"
+	"fmt"
 )
 
 func Start() {
@@ -18,4 +19,6 @@ func Start() {
 	schemaRegistryAdapter := repositories.NewSchemaRegistryAdapter(schemaRegistryClient)
 	schemaService := services.NewSchemaService(schemaRegistryAdapter)
 	handlers.NewHttpHandler(schemaService)
+
+	fmt.Println("HttpServer running!")
 }

@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"../core/ports"
+	"../core/application/ports"
 )
 
 type (
-	HttpHandler struct {
+	httpHandler struct {
 		schemaService ports.ISchemaService
 	}
 )
 
-func NewHttpHandler(schemaService ports.ISchemaService) *HttpHandler {
-	return &HttpHandler{
+func NewHttpHandler(schemaService ports.ISchemaService) *httpHandler {
+	return &httpHandler{
 		schemaService: schemaService,
 	}
 }
