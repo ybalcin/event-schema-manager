@@ -1,9 +1,12 @@
 package main
 
 import (
-	"./httpserver"
+	"../shared/config"
+	"./server/http"
 )
 
 func main() {
-	httpserver.Start()
+	cfg := config.LoadConfig()
+
+	http.Start(cfg)
 }
