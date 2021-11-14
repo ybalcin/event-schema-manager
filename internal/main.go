@@ -1,8 +1,8 @@
 package main
 
 import (
-	"../shared/config"
-	"./server/http"
+	"./cmd/server/http"
+	"./shared/config"
 )
 
 func main() {
