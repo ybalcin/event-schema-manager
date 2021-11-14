@@ -1,7 +1,7 @@
 package services
 
 import (
-	"../ports"
+	. "../../domain/schema"
 )
 
 type (
@@ -12,11 +12,11 @@ type (
 
 type (
 	schemaService struct {
-		schemaRepository ports.ISchemaRepository
+		schemaRepository ISchemaRepository
 	}
 )
 
-func NewSchemaService(schemaRepository ports.ISchemaRepository) ISchemaService {
+func NewSchemaService(schemaRepository ISchemaRepository) ISchemaService {
 	return &schemaService{
 		schemaRepository: schemaRepository,
 	}
