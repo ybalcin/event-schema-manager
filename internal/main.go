@@ -12,5 +12,5 @@ func main() {
 
 	http.Start(cfg)
 
-	fmt.Println("test")
+	fmt.Println("test2")
 }
