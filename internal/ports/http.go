@@ -1,8 +1,8 @@
 package ports
 
 import (
-	"../../../shared/config"
-	"../../application"
+	"../config"
+	"./.."
 )
 
 // HttpServer input http port

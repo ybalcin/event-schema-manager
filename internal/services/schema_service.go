@@ -1,7 +1,7 @@
 package services
 
 import (
-	. "../../domain/schema"
+	. "../domain/schema"
 )
 
 type (

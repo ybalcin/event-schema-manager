@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"./cmd/server/http"
-	"./shared/config"
+	"github.com/ybalcin/event-schema-manager/internal/config"
+	"github.com/ybalcin/event-schema-manager/internal/http"
 )
 
 func main() {

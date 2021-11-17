@@ -1,10 +1,10 @@
 package application
 
 import (
-	"../../../pkg/schemaregistry"
-	"../../infrastructure/repositories"
-	"../../shared/config"
-	. "./services"
+	. "../services"
+	"github.com/ybalcin/event-schema-manager/internal/repositories"
+	"github.com/ybalcin/event-schema-manager/internal/shared/config"
+	"github.com/ybalcin/event-schema-manager/pkg/schemaregistry"
 )
 
 type (
