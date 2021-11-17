@@ -2,8 +2,8 @@ package http
 
 import (
 	"fmt"
+	"github.com/ybalcin/event-schema-manager/internal/config"
 	"github.com/ybalcin/event-schema-manager/internal/ports"
-	"github.com/ybalcin/event-schema-manager/internal/shared/config"
 )
 
 func Start(cfg *config.AppConfig) {

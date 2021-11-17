@@ -1,7 +1,7 @@
-package repositories
+package adapters
 
 import (
-	"../../pkg/schemaregistry"
+	"github.com/ybalcin/event-schema-manager/pkg/schemaregistry"
 )
 
 type (

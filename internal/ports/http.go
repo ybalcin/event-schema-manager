@@ -1,8 +1,8 @@
 package ports
 
 import (
-	"../config"
-	"./.."
+	"github.com/ybalcin/event-schema-manager/internal/application"
+	"github.com/ybalcin/event-schema-manager/internal/config"
 )
 
 // HttpServer input http port

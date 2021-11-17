@@ -1,15 +1,15 @@
 package application
 
 import (
-	. "../services"
-	"github.com/ybalcin/event-schema-manager/internal/repositories"
-	"github.com/ybalcin/event-schema-manager/internal/shared/config"
+	"github.com/ybalcin/event-schema-manager/internal/adapters"
+	"github.com/ybalcin/event-schema-manager/internal/config"
+	"github.com/ybalcin/event-schema-manager/internal/services"
 	"github.com/ybalcin/event-schema-manager/pkg/schemaregistry"
 )
 
 type (
 	Application struct {
-		schemaService ISchemaService
+		schemaService services.ISchemaService
 	}
 )
 
@@ -19,7 +19,7 @@ func NewApplication(cfg *config.AppConfig) *Application {
 		panic(err)
 	}
 
-	schemaRegistryAdapter := repositories.NewSchemaRegistryRepository(schemaRegistryClient)
-	schemaService := NewSchemaService(schemaRegistryAdapter)
+	schemaRegistryAdapter := adapters.NewSchemaRegistryRepository(schemaRegistryClient)
+	schemaService := services.NewSchemaService(schemaRegistryAdapter)
 	return &Application{schemaService: schemaService}
 }

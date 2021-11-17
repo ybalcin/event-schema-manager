@@ -1,7 +1,7 @@
 package services
 
 import (
-	. "../domain/schema"
+	"github.com/ybalcin/event-schema-manager/internal/domain/schema"
 )
 
 type (
@@ -12,11 +12,11 @@ type (
 
 type (
 	schemaService struct {
-		schemaRepository ISchemaRepository
+		schemaRepository schema.ISchemaRepository
 	}
 )
 
-func NewSchemaService(schemaRepository ISchemaRepository) ISchemaService {
+func NewSchemaService(schemaRepository schema.ISchemaRepository) ISchemaService {
 	return &schemaService{
 		schemaRepository: schemaRepository,
 	}
