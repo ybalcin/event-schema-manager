@@ -28,7 +28,7 @@ func Config() *AppConfig {
 func readFromJson() {
 	var err error
 	var file *os.File
-	if file, err = os.Open("internal/shared/config/config.json"); err != nil {
+	if file, err = os.Open("../config/config.json"); err != nil {
 		panic(err)
 	}
 	defer file.Close()
