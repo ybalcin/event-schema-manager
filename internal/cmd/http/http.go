@@ -2,11 +2,11 @@ package http
 
 import (
 	"fmt"
-	"github.com/ybalcin/event-schema-manager/internal/ports"
+	"github.com/ybalcin/event-schema-manager/internal/core/application/ports"
 	"github.com/ybalcin/event-schema-manager/internal/shared/config"
 )
 
-func Start(cfg *config.AppConfig) {
+func StartServer(cfg *config.AppConfig) {
 	if cfg == nil {
 		panic("AppConfig is nil!")
 	}

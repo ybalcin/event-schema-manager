@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/ybalcin/event-schema-manager/internal/domain/schema"
+	"github.com/ybalcin/event-schema-manager/internal/core/domain/schema"
 )
 
 type (

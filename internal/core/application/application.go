@@ -1,8 +1,8 @@
-package app
+package application
 
 import (
-	"github.com/ybalcin/event-schema-manager/internal/adapters"
-	"github.com/ybalcin/event-schema-manager/internal/services"
+	"github.com/ybalcin/event-schema-manager/internal/core/application/services"
+	"github.com/ybalcin/event-schema-manager/internal/infrastructure/adapters"
 	"github.com/ybalcin/event-schema-manager/internal/shared/config"
 	"github.com/ybalcin/event-schema-manager/pkg/schemaregistry"
 )

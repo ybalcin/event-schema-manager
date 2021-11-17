@@ -8,5 +8,5 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	http.Start(cfg)
+	http.StartServer(cfg)
 }
