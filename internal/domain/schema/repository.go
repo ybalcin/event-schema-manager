@@ -1,7 +1,7 @@
 package schema
 
 type (
-	ISchemaRepository interface {
+	Repository interface {
 		Add(subject string, schema string) (int, error)
 	}
 )

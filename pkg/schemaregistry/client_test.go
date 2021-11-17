@@ -51,7 +51,7 @@ func mockHTTPHandler(status int, reqBody, respBody interface{}) doFn {
 			}
 		}
 		var resp http.Response
-		resp.Header = http.Header{"Content-Type": []string{"application/json"}}
+		resp.Header = http.Header{"Content-Type": []string{"app/json"}}
 		resp.StatusCode = status
 		if respBody != nil {
 			bs, err := json.Marshal(respBody)
@@ -194,7 +194,7 @@ func TestResourceError_Error(t *testing.T) {
 
 func TestClient_Subjects(t *testing.T) {
 	expected := []string{"sub1", "sub2"}
-	cli := Client{client: mockHttpSuccess(nil, expected)}
+	cli := client{httpClient: mockHttpSuccess(nil, expected)}
 	subs, err := cli.Subjects()
 	if err != nil {
 		t.Error(err)
@@ -217,7 +217,7 @@ func TestClient_Versions(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		versions, err := cli.Versions(c.subject)
 		mustEqual(t, versions, ([]int)(nil))
 		mustEqual(t, err, c.expected)
@@ -228,7 +228,7 @@ func TestClient_Versions(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		versions, err := cli.Versions(c.subject)
 		mustEqual(t, versions, c.expected)
 		mustEqual(t, err, nil)
@@ -250,7 +250,7 @@ func TestClient_DeleteSubject(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		versions, err := cli.DeleteSubject(c.subject)
 		mustEqual(t, versions, ([]string)(nil))
 		mustEqual(t, err, c.expected)
@@ -261,7 +261,7 @@ func TestClient_DeleteSubject(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		versions, err := cli.DeleteSubject(c.subject)
 		mustEqual(t, err, nil)
 		mustEqual(t, versions, c.expected)
@@ -297,7 +297,7 @@ func TestClient_IsRegistered(t *testing.T) {
 		{"", validSchema, errRequired("subject"), nil}, // if subject is empty should return err
 	}
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		_, _, err := cli.IsRegistered(c.subject, c.schema)
 		mustNotNil(t, err)
 
@@ -313,7 +313,7 @@ func TestClient_IsRegistered(t *testing.T) {
 		{testSubject, validSchema, false, mockHttpError(http.StatusNotFound, schemaNotFoundCode, reqBody, "")}, // should return isRegistered false
 	}
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		isRegistered, sc, _ := cli.IsRegistered(c.subject, c.schema)
 		mustNotNil(t, sc)
 
@@ -349,7 +349,7 @@ func TestClient_RegisterNewSchema(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		_, err := cli.RegisterNewSchema(c.subject, c.schema)
 		mustNotNil(t, err)
 
@@ -365,7 +365,7 @@ func TestClient_RegisterNewSchema(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		id, err := cli.RegisterNewSchema(c.subject, c.schema)
 		mustEqual(t, err, nil)
 		mustEqual(t, id, c.expected)
@@ -385,7 +385,7 @@ func TestClient_GetSchemaById(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		sc, err := cli.GetSchemaById(c.id)
 		mustEqual(t, err, c.expected)
 		mustEqual(t, sc, "")
@@ -397,7 +397,7 @@ func TestClient_GetSchemaById(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		sc, err := cli.GetSchemaById(c.id)
 		mustEqual(t, err, nil)
 		mustEqual(t, sc, validSchema)
@@ -428,7 +428,7 @@ func TestClient_GetSchemaByVersion(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		sc, err := cli.GetSchemaByVersion(c.subject, c.version)
 
 		mustEqual(t, sc, (*Schema)(nil))
@@ -444,7 +444,7 @@ func TestClient_GetSchemaByVersion(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		sc, err := cli.GetSchemaByVersion(c.subject, c.version)
 
 		mustEqual(t, err, nil)
@@ -466,7 +466,7 @@ func TestClient_GetLatestSchema(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		sc, err := cli.GetLatestSchema(c.subject)
 		mustEqual(t, sc, (*Schema)(nil))
 		mustEqual(t, err, c.expected)
@@ -492,7 +492,7 @@ func TestClient_IsSchemaCompatible(t *testing.T) {
 	}
 
 	for _, c := range testsError {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		is, err := cli.IsSchemaCompatible(c.subject, c.schema, c.version)
 		mustEqual(t, is, false)
 		if c.expected != struct{}{} {
@@ -510,7 +510,7 @@ func TestClient_IsSchemaCompatible(t *testing.T) {
 	}
 
 	for _, c := range testsSuccess {
-		cli := Client{client: c.mockHandler}
+		cli := client{httpClient: c.mockHandler}
 		is, err := cli.IsSchemaCompatible(c.subject, c.schema, c.version)
 		mustEqual(t, err, nil)
 		mustEqual(t, is, c.expected)

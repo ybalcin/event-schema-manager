@@ -1,15 +1,15 @@
-package application
+package app
 
 import (
 	"github.com/ybalcin/event-schema-manager/internal/adapters"
-	"github.com/ybalcin/event-schema-manager/internal/config"
 	"github.com/ybalcin/event-schema-manager/internal/services"
+	"github.com/ybalcin/event-schema-manager/internal/shared/config"
 	"github.com/ybalcin/event-schema-manager/pkg/schemaregistry"
 )
 
 type (
 	Application struct {
-		schemaService services.ISchemaService
+		schemaService services.SchemaService
 	}
 )
 

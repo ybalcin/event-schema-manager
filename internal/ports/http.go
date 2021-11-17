@@ -1,18 +1,18 @@
 package ports
 
 import (
-	"github.com/ybalcin/event-schema-manager/internal/application"
-	"github.com/ybalcin/event-schema-manager/internal/config"
+	"github.com/ybalcin/event-schema-manager/internal/app"
+	"github.com/ybalcin/event-schema-manager/internal/shared/config"
 )
 
 // HttpServer input http port
 type (
 	HttpServer struct {
-		app *application.Application
+		app *app.Application
 	}
 )
 
 func NewHttpServer(cfg *config.AppConfig) *HttpServer {
-	app := application.NewApplication(cfg)
+	app := app.NewApplication(cfg)
 	return &HttpServer{app: app}
 }

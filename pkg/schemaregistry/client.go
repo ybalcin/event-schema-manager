@@ -21,7 +21,7 @@ type (
 		Do(req *http.Request) (*http.Response, error)
 	}
 
-	IClient interface {
+	Client interface {
 		Subjects() (subjects []string, err error)
 		Versions(subject string) (versions []int, err error)
 		DeleteSubject(subject string) (versions []string, err error)
@@ -34,12 +34,12 @@ type (
 		IsLatestSchemaCompatible(subject string, avroSchema string) (bool, error)
 	}
 
-	Client struct {
-		baseUrl string
-		client  httpDoer
+	client struct {
+		baseUrl    string
+		httpClient httpDoer
 	}
 
-	Option func(*Client)
+	Option func(*client)
 )
 
 func getTransportLayer(httpClient *http.Client, timeout time.Duration) http.RoundTripper {
@@ -64,7 +64,7 @@ func getTransportLayer(httpClient *http.Client, timeout time.Duration) http.Roun
 }
 
 func usingClient(httpClient *http.Client) Option {
-	return func(c *Client) {
+	return func(c *client) {
 		if httpClient == nil {
 			return
 		}
@@ -72,11 +72,11 @@ func usingClient(httpClient *http.Client) Option {
 		transport := getTransportLayer(httpClient, 0)
 		httpClient.Transport = transport
 
-		c.client = httpClient
+		c.httpClient = httpClient
 	}
 }
 
-func NewClient(baseUrl string) (IClient, error) {
+func NewClient(baseUrl string) (Client, error) {
 	if baseUrl == "" {
 		return nil, errRequired("baseUrl")
 	}
@@ -85,8 +85,8 @@ func NewClient(baseUrl string) (IClient, error) {
 		return nil, err
 	}
 
-	c := &Client{baseUrl: baseUrl}
-	if c.client == nil {
+	c := &client{baseUrl: baseUrl}
+	if c.httpClient == nil {
 		httpClient := &http.Client{}
 		usingClient(httpClient)(c)
 	}
@@ -102,7 +102,7 @@ type ResourceError struct {
 }
 
 func (err ResourceError) Error() string {
-	return fmt.Sprintf("client: (%s: %s) failed with error: %d%s",
+	return fmt.Sprintf("httpClient: (%s: %s) failed with error: %d%s",
 		err.Uri, err.Method, err.ErrorCode, err.Message)
 }
 
@@ -189,8 +189,8 @@ func acquireBuffer(b []byte) *bytes.Buffer {
 
 const (
 	contentTypeHeaderKey  = "Content-Type"
-	contentTypeJSON       = "application/json"
-	contentTypeSchemaJSON = "application/vnd.schemaregistry.v1+json"
+	contentTypeJSON       = "app/json"
+	contentTypeSchemaJSON = "app/vnd.schemaregistry.v1+json"
 
 	acceptHeaderKey          = "Accept"
 	acceptEncodingHeaderKey  = "Accept-Encoding"
@@ -219,7 +219,7 @@ func (rc *gzipReadCloser) Read(p []byte) (n int, err error) {
 	return rc.respReader.Read(p)
 }
 
-func (c *Client) acquireResponseBodyStream(resp *http.Response) (io.ReadCloser, error) {
+func (c *client) acquireResponseBodyStream(resp *http.Response) (io.ReadCloser, error) {
 	// check for gzip
 	var (
 		reader = resp.Body
@@ -229,7 +229,7 @@ func (c *Client) acquireResponseBodyStream(resp *http.Response) (io.ReadCloser, 
 	if encoding := resp.Header.Get(contentEncodingHeaderKey); encoding == gzipEncodingHeaderValue {
 		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("client: failed to read gzip compressed content, trace: %v", err)
+			return nil, fmt.Errorf("httpClient: failed to read gzip compressed content, trace: %v", err)
 		}
 
 		return &gzipReadCloser{
@@ -241,7 +241,7 @@ func (c *Client) acquireResponseBodyStream(resp *http.Response) (io.ReadCloser, 
 	return reader, err
 }
 
-func (c *Client) readResponseBody(resp *http.Response) ([]byte, error) {
+func (c *client) readResponseBody(resp *http.Response) ([]byte, error) {
 	reader, err := c.acquireResponseBodyStream(resp)
 	if err != nil {
 		return nil, err
@@ -255,7 +255,7 @@ func (c *Client) readResponseBody(resp *http.Response) ([]byte, error) {
 	return body, err
 }
 
-func (c *Client) readJSON(resp *http.Response, val interface{}) error {
+func (c *client) readJSON(resp *http.Response, val interface{}) error {
 	b, err := c.readResponseBody(resp)
 	if err != nil {
 		return err
@@ -264,7 +264,7 @@ func (c *Client) readJSON(resp *http.Response, val interface{}) error {
 	return json.Unmarshal(b, val)
 }
 
-func (c *Client) do(method, path, contentType string, send []byte) (*http.Response, error) {
+func (c *client) do(method, path, contentType string, send []byte) (*http.Response, error) {
 	if path[0] == '/' {
 		path = path[1:]
 	}
@@ -283,7 +283,7 @@ func (c *Client) do(method, path, contentType string, send []byte) (*http.Respon
 	req.Header.Add(acceptEncodingHeaderKey, gzipEncodingHeaderValue)
 	req.Header.Add(acceptHeaderKey, contentTypeJSON+", "+contentTypeSchemaJSON)
 
-	resp, err := c.client.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -308,11 +308,11 @@ const (
 )
 
 var errRequired = func(field string) error {
-	return fmt.Errorf("client: %s is required", field)
+	return fmt.Errorf("httpClient: %s is required", field)
 }
 
 // Subjects returns list of subjects
-func (c *Client) Subjects() (subjects []string, err error) {
+func (c *client) Subjects() (subjects []string, err error) {
 
 	// GET /subjects
 	resp, resError := c.do(http.MethodGet, subjectsPath, "", nil)
@@ -326,7 +326,7 @@ func (c *Client) Subjects() (subjects []string, err error) {
 }
 
 // Versions returns all versions of a subject
-func (c *Client) Versions(subject string) (versions []int, err error) {
+func (c *client) Versions(subject string) (versions []int, err error) {
 	if subject == "" {
 		err = errRequired("subject")
 		return
@@ -345,7 +345,7 @@ func (c *Client) Versions(subject string) (versions []int, err error) {
 }
 
 // DeleteSubject deletes subject and returns deleted versions belong with it
-func (c *Client) DeleteSubject(subject string) (versions []string, err error) {
+func (c *client) DeleteSubject(subject string) (versions []string, err error) {
 	if subject == "" {
 		err = errRequired("subject")
 		return
@@ -388,7 +388,7 @@ type (
 const SchemaLatestVersion = "latest"
 
 // IsRegistered returns true if the given schema is registered already
-func (c *Client) IsRegistered(subject, schema string) (bool, Schema, error) {
+func (c *client) IsRegistered(subject, schema string) (bool, Schema, error) {
 	var sc Schema
 
 	if subject == "" {
@@ -424,7 +424,7 @@ func (c *Client) IsRegistered(subject, schema string) (bool, Schema, error) {
 }
 
 // RegisterNewSchema registers a new schema and returns id of it
-func (c *Client) RegisterNewSchema(subject string, avroSchema string) (int, error) {
+func (c *client) RegisterNewSchema(subject string, avroSchema string) (int, error) {
 	if subject == "" {
 		return 0, errRequired("subject")
 	}
@@ -451,7 +451,7 @@ func (c *Client) RegisterNewSchema(subject string, avroSchema string) (int, erro
 }
 
 // GetSchemaById gets schema by id
-func (c *Client) GetSchemaById(id int) (string, error) {
+func (c *client) GetSchemaById(id int) (string, error) {
 
 	// GET /schemas/ids/{int: id}
 	path := fmt.Sprintf(schemaPath, id)
@@ -469,7 +469,7 @@ func (c *Client) GetSchemaById(id int) (string, error) {
 }
 
 // GetSchemaByVersion gets schema by version number
-func (c *Client) GetSchemaByVersion(subject string, version string) (*Schema, error) {
+func (c *client) GetSchemaByVersion(subject string, version string) (*Schema, error) {
 	if subject == "" {
 		return nil, errRequired("subject")
 	}
@@ -498,12 +498,12 @@ func (c *Client) GetSchemaByVersion(subject string, version string) (*Schema, er
 }
 
 // GetLatestSchema gets the latest schema of subject
-func (c *Client) GetLatestSchema(subject string) (*Schema, error) {
+func (c *client) GetLatestSchema(subject string) (*Schema, error) {
 	return c.GetSchemaByVersion(subject, SchemaLatestVersion)
 }
 
 func checkSchemaVersionNumber(versionNumber interface{}) error {
-	const stringNotValid string = "client: %v string is not a valid value for versionNumber"
+	const stringNotValid string = "httpClient: %v string is not a valid value for versionNumber"
 
 	if versionNumber == nil {
 		return errRequired("versionNumber must be string \"latest\" or int")
@@ -532,7 +532,7 @@ func checkSchemaVersionNumber(versionNumber interface{}) error {
 	return nil
 }
 
-func (c *Client) isSchemaCompatibleAtVersion(subject string, avroSchema string, version interface{}) (bool, error) {
+func (c *client) isSchemaCompatibleAtVersion(subject string, avroSchema string, version interface{}) (bool, error) {
 	if subject == "" {
 		return false, errRequired("subject")
 	}
@@ -564,11 +564,11 @@ func (c *Client) isSchemaCompatibleAtVersion(subject string, avroSchema string, 
 }
 
 // IsSchemaCompatible is schema is compatible with version
-func (c *Client) IsSchemaCompatible(subject string, avroSchema string, version int) (bool, error) {
+func (c *client) IsSchemaCompatible(subject string, avroSchema string, version int) (bool, error) {
 	return c.isSchemaCompatibleAtVersion(subject, avroSchema, version)
 }
 
 // IsLatestSchemaCompatible is schema is compatible with last version
-func (c *Client) IsLatestSchemaCompatible(subject string, avroSchema string) (bool, error) {
+func (c *client) IsLatestSchemaCompatible(subject string, avroSchema string) (bool, error) {
 	return c.isSchemaCompatibleAtVersion(subject, avroSchema, SchemaLatestVersion)
 }

@@ -6,11 +6,11 @@ import (
 
 type (
 	schemaRegistryRepository struct {
-		schemaRegistryClient schemaregistry.IClient
+		schemaRegistryClient schemaregistry.Client
 	}
 )
 
-func NewSchemaRegistryRepository(schemaRegistryClient schemaregistry.IClient) *schemaRegistryRepository {
+func NewSchemaRegistryRepository(schemaRegistryClient schemaregistry.Client) *schemaRegistryRepository {
 	return &schemaRegistryRepository{
 		schemaRegistryClient: schemaRegistryClient,
 	}

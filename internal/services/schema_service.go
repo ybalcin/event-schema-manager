@@ -5,25 +5,25 @@ import (
 )
 
 type (
-	ISchemaService interface {
+	SchemaService interface {
 		Add(subject string, schema string) error
 	}
 )
 
 type (
 	schemaService struct {
-		schemaRepository schema.ISchemaRepository
+		repository schema.Repository
 	}
 )
 
-func NewSchemaService(schemaRepository schema.ISchemaRepository) ISchemaService {
+func NewSchemaService(repository schema.Repository) SchemaService {
 	return &schemaService{
-		schemaRepository: schemaRepository,
+		repository: repository,
 	}
 }
 
 func (s *schemaService) Add(subject string, schema string) error {
-	_, err := s.schemaRepository.Add(subject, schema)
+	_, err := s.repository.Add(subject, schema)
 	// handle version, do something useful :)
 	return err
 }
